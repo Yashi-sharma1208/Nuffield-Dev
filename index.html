@@ -89,12 +89,12 @@
 
         function startCXoneSession() {
             if (!cxOneLoaded) {
-                console.warn("⏳ Waiting for CXone to load...");
+                console.warn("Waiting for CXone to load...");
                 setTimeout(startCXoneSession, 500);
                 return;
             }
 
-            console.log("🔥 Starting NICE CXone Handoff...");
+            console.log("Starting NICE CXone Handoff...");
 
             cxone('init', '1152');
             cxone('chat', 'init', 1152, 'chat_77cdeb00-0c80-41cb-874b-0e7df1067e0c');
