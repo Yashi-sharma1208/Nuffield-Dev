@@ -68,43 +68,38 @@
         let transcriptId = "";
 
         function startCxoneChat() {
-      (function (n, u) {
-        window.CXoneDfo = n;
-        window[n] = window[n] || function () {
-          (window[n].q = window[n].q || []).push(arguments);
-        };
-        window[n].u = u;
+            (function (n, u) {
+                window.CXoneDfo = n;
+                window[n] = window[n] || function () {
+                    (window[n].q = window[n].q || []).push(arguments);
+                };
+                window[n].u = u;
+                const e = document.createElement("script");
+                e.type = "module";
+                e.src = u + "?" + Math.round(Date.now() / 3600000);
+                document.head.appendChild(e);
+            })('cxone', 'https://web-modules-de-uk1.niceincontact.com/loader/1/loader.js');
 
-        const e = document.createElement("script");
-        e.type = "module";
-        e.src = `https://web-modules-de-eu1.niceincontact.com/loader/1/loader.js`;
-        document.head.appendChild(e);
-      })("cxone", "https://web-modules-de-eu1.niceincontact.com/loader/1/loader.js");
+            cxone('init', '1152');
+            cxone('chat', 'init', 1152, 'chat_77cdeb00-0c80-41cb-874b-0e7df1067e0c');
 
-      // Wait for script to load
-      setTimeout(() => {
-        cxone("init", "1150", "chat_8588f97c-23cc-4dee-b24c-35e612849e91");
-        cxone("chat", "init", 1150, "chat_8588f97c-23cc-4dee-b24c-35e612849e91");
+            // Set Customer's Name
+            cxone('chat', 'setCustomerName', '{{ExternalPartiesName}}');
 
-        cxone("chat", "setCustomerName", "Steven Emerson");
-        cxone("chat", "setCustomField", "saeccdept", "Sales");
+            // Set Custom Fields
+            cxone('chat', 'setCustomField', 'nuffskill', '{{Nuffield_Department}}');
+            cxone('chat', 'setCustomField', 'sfticketid', '{{SFTicketId}}');
 
-        cxone("chat", "sendFirstMessageAutomatically", "Chat has been initiated");
-        cxone("chat", "hideFirstSentMessage", false);
-        cxone("chat", "hidePreSurvey");
+            // Behavior & Session Settings
+            cxone('chat', 'sendFirstMessageAutomatically', '{{chat_transcript_summary}}');
+            cxone('chat', 'hideSystemMessages');
+            cxone('chat', 'enableChatAlwaysOnline');
+            cxone('chat', 'hidePreSurvey');
+            cxone('chat', 'openChatWindow');
 
-        // Listen for when CXone chat window actually opens
-        //cxone("chat", "onOpened", function () {
-        //console.log("CXone Chat is fully opened — now hiding Embedded Messaging");
-        //document.getElementById("embedded-messaging").style.display = "none";
-        //});
+            cxone('chat', 'autoStartSession');
 
-        cxone("chat", "openChatWindow");
-        cxone("chat", "autoStartSession");
-
-        console.log("CXone Chat Started.");
-      }, 2000);
-    }
+        }
 
         function initEmbeddedMessaging() {
             try {
@@ -134,7 +129,7 @@
                         console.log("Transcript ID: " + transcriptId);
                     }
 
-                    if(messageText.includes('Transferring chat to an agent.')){
+                    if (messageText.includes('Transferring chat to an agent.')) {
                         console.log("If block executed");
                         startCxoneChat();
                     }
