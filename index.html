@@ -66,79 +66,79 @@
     <script type='text/javascript'>
         let firstName = "";
         let transcriptId = "";
-        let handoffTriggered = false;
-        let cxOneLoaded = false;
 
-        function loadCXoneScript() {
-            (function (n, u) {
-                window.CXoneDfo = n;
-                window[n] = window[n] || function () {
-                    (window[n].q = window[n].q || []).push(arguments)
-                };
-                window[n].u = u;
-                const script = document.createElement("script");
-                script.type = "module";
-                script.src = u + "?" + Math.round(Date.now() / 3600000);
-                script.onload = () => {
-                    cxOneLoaded = true;
-                    console.log("✔ CXone script successfully loaded.");
-                };
-                document.head.appendChild(script);
-            })('cxone', 'https://web-modules-de-uk1.niceincontact.com/loader/1/loader.js');
-        }
+        function startCxoneChat() {
+      (function (n, u) {
+        window.CXoneDfo = n;
+        window[n] = window[n] || function () {
+          (window[n].q = window[n].q || []).push(arguments);
+        };
+        window[n].u = u;
 
-        function startCXoneSession() {
-            if (!cxOneLoaded) {
-                console.warn("Waiting for CXone to load...");
-                setTimeout(startCXoneSession, 500);
-                return;
-            }
+        const e = document.createElement("script");
+        e.type = "module";
+        e.src = `https://web-modules-de-eu1.niceincontact.com/loader/1/loader.js`;
+        document.head.appendChild(e);
+      })("cxone", "https://web-modules-de-eu1.niceincontact.com/loader/1/loader.js");
 
-            console.log("Starting NICE CXone Handoff...");
+      // Wait for script to load
+      setTimeout(() => {
+        cxone("init", "1150", "chat_8588f97c-23cc-4dee-b24c-35e612849e91");
+        cxone("chat", "init", 1150, "chat_8588f97c-23cc-4dee-b24c-35e612849e91");
 
-            cxone('init', '1152');
-            cxone('chat', 'init', 1152, 'chat_77cdeb00-0c80-41cb-874b-0e7df1067e0c');
+        cxone("chat", "setCustomerName", "Steven Emerson");
+        cxone("chat", "setCustomField", "saeccdept", "Sales");
 
-            cxone('chat', 'setCustomerName', firstName || "Guest");
-            cxone('chat', 'setCustomField', 'nuffskill', '{{Nuffield_Department}}');
-            cxone('chat', 'setCustomField', 'sfticketid', transcriptId);
+        cxone("chat", "sendFirstMessageAutomatically", "Chat has been initiated");
+        cxone("chat", "hideFirstSentMessage", false);
+        cxone("chat", "hidePreSurvey");
 
-            cxone('chat', 'sendFirstMessageAutomatically', transcriptId);
-            cxone('chat', 'hideSystemMessages');
-            cxone('chat', 'enableChatAlwaysOnline');
-            cxone('chat', 'hidePreSurvey');
-            cxone('chat', 'openChatWindow');
-            cxone('chat', 'autoStartSession');
-        }
+        // Listen for when CXone chat window actually opens
+        //cxone("chat", "onOpened", function () {
+        //console.log("CXone Chat is fully opened — now hiding Embedded Messaging");
+        //document.getElementById("embedded-messaging").style.display = "none";
+        //});
+
+        cxone("chat", "openChatWindow");
+        cxone("chat", "autoStartSession");
+
+        console.log("CXone Chat Started.");
+      }, 2000);
+    }
 
         function initEmbeddedMessaging() {
             try {
-                embeddedservice_bootstrap.settings.language = 'en_US';
+                embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
 
+                // This event listner is triggered when the pre-chat form is submitted
                 window.addEventListener("onEmbeddedMessagingPreChatSubmitted", ({ detail }) => {
-                    firstName = detail.prechatSubmitFields._firstName || "";
-                    console.log("User Name:", firstName);
+                    const { _firstName } = detail.prechatSubmitFields;
+                    firstName = _firstName;;
+                    console.log(`User Name: ${firstName}`);
                 });
 
+                // This event listner is triggered when a message is sent in the chat
                 window.addEventListener("onEmbeddedMessageSent", (event) => {
                     const payload = JSON.parse(event.detail.conversationEntry.entryPayload);
+
+                    //Extract text
                     const messageText = payload.abstractMessage?.staticContent?.text;
+
                     console.log("Extracted text:", messageText);
-
-                    if (messageText?.includes("welcome to Nuffield Customer Support")) {
+                    // Fetching transcript id
+                    if (messageText.includes("welcome to Nuffield Customer Support")) {
                         const match = messageText.match(/Your transcript ID is\s*([A-Za-z0-9-]+)/i);
-                        if (match) transcriptId = match[1].trim();
-                        console.log("Transcript ID:", transcriptId);
+                        if (match && match[1]) {
+                            transcriptId = match[1].trim();
+                        }
+                        console.log("Transcript ID: " + transcriptId);
                     }
 
-                    // *** DO NOT MODIFY CONDITION BELOW ***
-                    if (messageText == 'Transferring chat to agent.' && !handoffTriggered) {
-                        handoffTriggered = true;
-                        loadCXoneScript();
-                        startCXoneSession();
+                    if(messageText == 'Transferring chat to agent.'){
+                        startCxoneChat();
                     }
+
                 });
-
                 embeddedservice_bootstrap.init(
                     '00DS900000DRZFB',
                     'Agentforce_Customer_Support_Dev',
@@ -147,16 +147,16 @@
                         scrt2URL: 'https://nuffieldhealth-crm--mintdev.sandbox.my.salesforce-scrt.com'
                     }
                 );
-
             } catch (err) {
-                console.error('Error loading Embedded Messaging:', err);
+                console.error('Error loading Embedded Messaging: ', err);
             }
-        }
+        };
     </script>
-
     <script type='text/javascript'
         src='https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1764669389369/assets/js/bootstrap.min.js'
         onload='initEmbeddedMessaging()'></script>
 
+
 </body>
+
 </html>
