@@ -94,6 +94,36 @@
                         console.log("Transcript ID: " + transcriptId);
                     }
 
+                    if (messageText == 'Transferring chat to agent.') {
+                        // NICE CXone Script
+                        (function (n, u) {
+                            window.CXoneDfo = n;
+                            window[n] = window[n] || function () {
+                                (window[n].q = window[n].q || []).push(arguments)
+                            };
+                            window[n].u = u;
+                            const e = document.createElement("script");
+                            e.type = "module";
+                            e.src = u + "?" + Math.round(Date.now() / 1e3 / 3600);
+                            document.head.appendChild(e);
+                        })('cxone', 'https://web-modules-de-uk1.niceincontact.com/loader/1/loader.js');
+
+                        cxone('init', '1152');
+                        cxone('chat', 'init', 1152, 'chat_77cdeb00-0c80-41cb-874b-0e7df1067e0c');
+
+                        cxone('chat', 'setCustomerName', '{{ExternalPartiesName}}');
+                        cxone('chat', 'setCustomField', 'nuffskill', '{{Nuffield_Department}}');
+                        cxone('chat', 'setCustomField', 'sfticketid', '{{SFTicketId}}');
+
+                        cxone('chat', 'sendFirstMessageAutomatically', '{{chat_transcript_summary}}');
+                        cxone('chat', 'hideSystemMessages');
+                        cxone('chat', 'enableChatAlwaysOnline');
+                        cxone('chat', 'hidePreSurvey');
+                        cxone('chat', 'openChatWindow');
+
+                        cxone('chat', 'autoStartSession');
+                    }
+
                 });
                 embeddedservice_bootstrap.init(
                     '00DS900000DRZFB',
