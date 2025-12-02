@@ -64,24 +64,53 @@
 
     <!-- Embedded Messaging Code -->
     <script type='text/javascript'>
-	function initEmbeddedMessaging() {
-		try {
-			embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
+        let firstName = "";
+        let transcriptId = "";
+        function initEmbeddedMessaging() {
+            try {
+                embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
 
-			embeddedservice_bootstrap.init(
-				'00DS900000DRZFB',
-				'Agentforce_Customer_Support_Dev',
-				'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1764669389369',
-				{
-					scrt2URL: 'https://nuffieldhealth-crm--mintdev.sandbox.my.salesforce-scrt.com'
-				}
-			);
-		} catch (err) {
-			console.error('Error loading Embedded Messaging: ', err);
-		}
-	};
-</script>
-<script type='text/javascript' src='https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1764669389369/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+                // This event listner is triggered when the pre-chat form is submitted
+                window.addEventListener("onEmbeddedMessagingPreChatSubmitted", ({ detail }) => {
+                    const { _firstName } = detail.prechatSubmitFields;
+                    firstName = _firstName;;
+                    console.log(`User Name: ${firstName}`);
+                });
+
+                // This event listner is triggered when a message is sent in the chat
+                window.addEventListener("onEmbeddedMessageSent", (event) => {
+                    const payload = JSON.parse(event.detail.conversationEntry.entryPayload);
+
+                    //Extract text
+                    const messageText = payload.abstractMessage?.staticContent?.text;
+
+                    console.log("Extracted text:", messageText);
+                    // Fetching transcript id
+                    if (messageText.includes("welcome to Nuffield Customer Support")) {
+                        const match = messageText.match(/Your transcript ID is\s*([A-Za-z0-9-]+)/i);
+                        if (match && match[1]) {
+                            transcriptId = match[1].trim();
+                        }
+                        console.log("Transcript ID: " + transcriptId);
+                    }
+
+                });
+                embeddedservice_bootstrap.init(
+                    '00DS900000DRZFB',
+                    'Agentforce_Customer_Support_Dev',
+                    'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1764669389369',
+                    {
+                        scrt2URL: 'https://nuffieldhealth-crm--mintdev.sandbox.my.salesforce-scrt.com'
+                    }
+                );
+            } catch (err) {
+                console.error('Error loading Embedded Messaging: ', err);
+            }
+        };
+    </script>
+    <script type='text/javascript'
+        src='https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1764669389369/assets/js/bootstrap.min.js'
+        onload='initEmbeddedMessaging()'></script>
 
 
 </body>
