@@ -134,7 +134,8 @@
                         console.log("Transcript ID: " + transcriptId);
                     }
 
-                    if(messageText == 'Transferring chat to agent.'){
+                    if(messageText.includes('Transferring chat to an agent.')){
+                        console.log("If block executed");
                         startCxoneChat();
                     }
 
