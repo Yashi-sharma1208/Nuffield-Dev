@@ -84,11 +84,11 @@
             cxone('chat', 'init', 1152, 'chat_77cdeb00-0c80-41cb-874b-0e7df1067e0c');
 
             // Set Customer's Name
-            cxone('chat', 'setCustomerName', '{{ExternalPartiesName}}');
+            cxone('chat', 'setCustomerName', firstName || "Guest");
 
             // Set Custom Fields
             cxone('chat', 'setCustomField', 'nuffskill', '{{Nuffield_Department}}');
-            cxone('chat', 'setCustomField', 'sfticketid', '{{SFTicketId}}');
+            cxone('chat', 'setCustomField', 'sfticketid', transcriptId);
 
             // Behavior & Session Settings
             cxone('chat', 'sendFirstMessageAutomatically', 'I want help related to booking an appointment');
