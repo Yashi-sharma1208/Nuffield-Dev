@@ -85,14 +85,14 @@
             cxone("chat", "init", 1152, "chat_77cdeb00-0c80-41cb-874b-0e7df1067e0c");
 
             // Set Customer's Name
-            cxone("chat", "setCustomerName", "{{ExternalPartiesName}}");
+            cxone("chat", "setCustomerName", firstName);
 
             // Set Custom Fields
-            cxone("chat", "setCustomField", "nuffskill", "{{Nuffield_Department}}");
-            cxone("chat", "setCustomField", "sfticketid", "{{SFTicketId}}"); // Transcript Id
+            cxone("chat", "setCustomField", "nuffskill", "29204809");
+            cxone("chat", "setCustomField", "sfticketid", transcriptId); // Transcript Id
 
             // Start Chat with Summary
-            cxone("chat", "sendFirstMessageAutomatically", "{{chat_transcript_summary}}");
+            //cxone("chat", "sendFirstMessageAutomatically", "{{chat_transcript_summary}}");
 
             cxone("chat", "hideSystemMessages");
             cxone("chat", "enableChatAlwaysOnline");
