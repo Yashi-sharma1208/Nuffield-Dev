@@ -142,66 +142,13 @@
 
                         if (match && match[1]) {
                             caseNumber = match[1];
+                            //console.log("Extracted Case Number:", caseNumber);
                             startCxoneChat(firstName, transcriptId, caseNumber);
-
-                            function findButtonInsideShadow(root, selector) {
-                                if (!root) return null;
-
-                                // Try in normal DOM of this root
-                                let btn = root.querySelector(selector);
-                                if (btn) return btn;
-
-                                // Search nested shadow roots
-                                const elements = root.querySelectorAll("*");
-                                for (let el of elements) {
-                                    if (el.shadowRoot) {
-                                        let shadowBtn = findButtonInsideShadow(el.shadowRoot, selector);
-                                        if (shadowBtn) return shadowBtn;
-                                    }
-                                }
-                                return null;
-                            }
-
-                            function clickMinimizeButton() {
-                                const selector = '[id^="headerMinimizeButton-"]';
-                                let btn = null;
-
-                                // 1️⃣ Check root document
-                                btn = findButtonInsideShadow(document, selector);
-
-                                // 2️⃣ Check if inside iframe
-                                if (!btn) {
-                                    const iframes = document.querySelectorAll("iframe");
-                                    for (let frame of iframes) {
-                                        try {
-                                            const doc = frame.contentDocument || frame.contentWindow.document;
-                                            btn = findButtonInsideShadow(doc, selector);
-                                            if (btn) break;
-                                        } catch (e) { }
-                                    }
-                                }
-
-                                if (btn) {
-                                    btn.click();
-                                    console.log("✅ Minimize button clicked!");
-                                    return true;
-                                }
-
-                                return false;
-                            }
-
-                            // Retry click until found (every 500ms for max 10s)
-                            let attempts = 0;
-                            const interval = setInterval(() => {
-                                attempts++;
-                                if (clickMinimizeButton() || attempts > 20) {
-                                    clearInterval(interval);
-                                    if (attempts > 20) console.log("❌ Minimize button still not found.");
-                                }
-                            }, 500);
-                        }
-
-                        else {
+                            // Hide the embedded messaging window after 4 seconds);
+                            setTimeout(() => {
+                                document.getElementById("embedded-messaging").style.display = "none";
+                            }, 4000);
+                        } else {
                             //console.warn("Case number not found in message.");
                             //startCxoneChat();
                         }
@@ -230,3 +177,4 @@
 </body>
 
 </html>
+
