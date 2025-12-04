@@ -142,14 +142,40 @@
 
                         if (match && match[1]) {
                             caseNumber = match[1];
-                            //console.log("Extracted Case Number:", caseNumber);
                             startCxoneChat(firstName, transcriptId, caseNumber);
-                            // Hide the embedded messaging window after 4 seconds);
+
+                            // Function to find "headerMinimizeButton-" even if it's inside shadow DOM
+                            function findMinimizeButton() {
+                                const selector = '[id^="headerMinimizeButton-"]';
+
+                                // Check normal DOM first
+                                let btn = document.querySelector(selector);
+                                if (btn) return btn;
+
+                                // Check inside Shadow DOM
+                                const allElems = [...document.querySelectorAll('*')];
+                                for (let el of allElems) {
+                                    if (el.shadowRoot) {
+                                        let shadowBtn = el.shadowRoot.querySelector(selector);
+                                        if (shadowBtn) return shadowBtn;
+                                    }
+                                }
+
+                                return null;
+                            }
+
+                            // Try clicking after 4 seconds (allow UI to render)
                             setTimeout(() => {
-                                //document.getElementById("embedded-messaging").style.display = "none";
-                                document.querySelector('[id^="headerMinimizeButton-"]').click();
+                                const btn = findMinimizeButton();
+                                if (btn) {
+                                    btn.click();
+                                    console.log("💡 Minimize button clicked successfully!");
+                                } else {
+                                    console.log("⚠️ Minimize button not found.");
+                                }
                             }, 4000);
-                        } else {
+                        }
+                        else {
                             //console.warn("Case number not found in message.");
                             //startCxoneChat();
                         }
