@@ -144,37 +144,63 @@
                             caseNumber = match[1];
                             startCxoneChat(firstName, transcriptId, caseNumber);
 
-                            // Function to find "headerMinimizeButton-" even if it's inside shadow DOM
-                            function findMinimizeButton() {
-                                const selector = '[id^="headerMinimizeButton-"]';
+                            function findButtonInsideShadow(root, selector) {
+                                if (!root) return null;
 
-                                // Check normal DOM first
-                                let btn = document.querySelector(selector);
+                                // Try in normal DOM of this root
+                                let btn = root.querySelector(selector);
                                 if (btn) return btn;
 
-                                // Check inside Shadow DOM
-                                const allElems = [...document.querySelectorAll('*')];
-                                for (let el of allElems) {
+                                // Search nested shadow roots
+                                const elements = root.querySelectorAll("*");
+                                for (let el of elements) {
                                     if (el.shadowRoot) {
-                                        let shadowBtn = el.shadowRoot.querySelector(selector);
+                                        let shadowBtn = findButtonInsideShadow(el.shadowRoot, selector);
                                         if (shadowBtn) return shadowBtn;
                                     }
                                 }
-
                                 return null;
                             }
 
-                            // Try clicking after 4 seconds (allow UI to render)
-                            setTimeout(() => {
-                                const btn = findMinimizeButton();
+                            function clickMinimizeButton() {
+                                const selector = '[id^="headerMinimizeButton-"]';
+                                let btn = null;
+
+                                // 1️⃣ Check root document
+                                btn = findButtonInsideShadow(document, selector);
+
+                                // 2️⃣ Check if inside iframe
+                                if (!btn) {
+                                    const iframes = document.querySelectorAll("iframe");
+                                    for (let frame of iframes) {
+                                        try {
+                                            const doc = frame.contentDocument || frame.contentWindow.document;
+                                            btn = findButtonInsideShadow(doc, selector);
+                                            if (btn) break;
+                                        } catch (e) { }
+                                    }
+                                }
+
                                 if (btn) {
                                     btn.click();
-                                    console.log("💡 Minimize button clicked successfully!");
-                                } else {
-                                    console.log("⚠️ Minimize button not found.");
+                                    console.log("✅ Minimize button clicked!");
+                                    return true;
                                 }
-                            }, 4000);
+
+                                return false;
+                            }
+
+                            // Retry click until found (every 500ms for max 10s)
+                            let attempts = 0;
+                            const interval = setInterval(() => {
+                                attempts++;
+                                if (clickMinimizeButton() || attempts > 20) {
+                                    clearInterval(interval);
+                                    if (attempts > 20) console.log("❌ Minimize button still not found.");
+                                }
+                            }, 500);
                         }
+
                         else {
                             //console.warn("Case number not found in message.");
                             //startCxoneChat();
