@@ -66,7 +66,7 @@
     <script type='text/javascript'>
         let firstName = "";
         let transcriptId = "";
-
+        let caseNumber = "";
         function startCxoneChat() {
             (function (n, u) {
                 window.CXoneDfo = n;
@@ -129,10 +129,24 @@
                         console.log("Transcript ID: " + transcriptId);
                     }
 
-                    if (messageText.includes('Transferring chat to an agent.')) {
-                        console.log("If block executed");
-                        startCxoneChat();
+                    if (messageText.includes('Your chat is being forwarded for support.')) {
+
+                        // Regex to capture the case number after the phrase
+                        const regex = /Your case number is\s+([A-Za-z0-9]+)/i;
+                        const match = messageText.match(regex);
+
+                        if (match && match[1]) {
+                            caseNumber = match[1];
+                            console.log("Extracted Case Number:", caseNumber);
+
+                            startCxoneChat();
+
+                        } else {
+                            console.warn("Case number not found in message.");
+                            startCxoneChat();
+                        }
                     }
+
 
                 });
                 embeddedservice_bootstrap.init(
