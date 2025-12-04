@@ -64,7 +64,7 @@
 
     <!-- Embedded Messaging Code -->
     <script type='text/javascript'>
-        function startCxoneChat() {
+        function startCxoneChat(firstName, transcriptId, caseNumber) {
             (function (n, u) {
                 window.CXoneDfo = n;
                 window[n] = window[n] || function () {
@@ -143,13 +143,14 @@
                         if (match && match[1]) {
                             caseNumber = match[1];
                             //console.log("Extracted Case Number:", caseNumber);
-                            startCxoneChat();
+                            startCxoneChat(firstName, transcriptId, caseNumber);
+                            // Hide the embedded messaging window after 4 seconds);
                             setTimeout(() => {
                                 document.getElementById("embedded-messaging").style.display = "none";
                             }, 4000);
                         } else {
                             //console.warn("Case number not found in message.");
-                            startCxoneChat();
+                            //startCxoneChat();
                         }
                     }
 
