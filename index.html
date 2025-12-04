@@ -71,30 +71,35 @@
                     (window[n].q = window[n].q || []).push(arguments);
                 };
                 window[n].u = u;
+
                 const e = document.createElement("script");
                 e.type = "module";
-                e.src = u + "?" + Math.round(Date.now() / 3600000);
+                e.src = u + "?" + Math.round(Date.now() / 1e3 / 3600);
                 document.head.appendChild(e);
-            })('cxone', 'https://web-modules-de-uk1.niceincontact.com/loader/1/loader.js');
+            })(
+                "cxone",
+                "https://web-modules-de-uk1.niceincontact.com/loader/1/loader.js"
+            );
 
-            cxone('init', '1152');
-            cxone('chat', 'init', 1152, 'chat_77cdeb00-0c80-41cb-874b-0e7df1067e0c');
+            cxone("init", "1152");
+            cxone("chat", "init", 1152, "chat_77cdeb00-0c80-41cb-874b-0e7df1067e0c");
 
             // Set Customer's Name
-            cxone('chat', 'setCustomerName', firstName || "Guest");
+            cxone("chat", "setCustomerName", "{{ExternalPartiesName}}");
 
             // Set Custom Fields
-            cxone('chat', 'setCustomField', 'nuffskill', '29204809');
-            cxone('chat', 'setCustomField', 'sfticketid', transcriptId);
+            cxone("chat", "setCustomField", "nuffskill", "{{Nuffield_Department}}");
+            cxone("chat", "setCustomField", "sfticketid", "{{SFTicketId}}"); // Transcript Id
 
-            // Behavior & Session Settings
-            cxone('chat', 'sendFirstMessageAutomatically', 'I want help related to booking an appointment');
-            cxone('chat', 'hideSystemMessages');
-            cxone('chat', 'enableChatAlwaysOnline');
-            cxone('chat', 'hidePreSurvey');
-            cxone('chat', 'openChatWindow');
+            // Start Chat with Summary
+            cxone("chat", "sendFirstMessageAutomatically", "{{chat_transcript_summary}}");
 
-            cxone('chat', 'autoStartSession');
+            cxone("chat", "hideSystemMessages");
+            cxone("chat", "enableChatAlwaysOnline");
+            cxone("chat", "hidePreSurvey");
+            cxone("chat", "openChatWindow");
+
+            cxone("chat", "autoStartSession");
 
         }
 
@@ -109,7 +114,7 @@
                 window.addEventListener("onEmbeddedMessagingPreChatSubmitted", ({ detail }) => {
                     const { _firstName } = detail.prechatSubmitFields;
                     firstName = _firstName;;
-                    console.log(`User Name: ${firstName}`);
+                    //console.log(`User Name: ${firstName}`);
                 });
 
                 // This event listner is triggered when a message is sent in the chat
@@ -119,14 +124,14 @@
                     //Extract text
                     const messageText = payload.abstractMessage?.staticContent?.text;
 
-                    console.log("Extracted text:", messageText);
+                    //console.log("Extracted text:", messageText);
                     // Fetching transcript id
                     if (messageText.includes("welcome to Nuffield Customer Support")) {
                         const match = messageText.match(/Your transcript ID is\s*([A-Za-z0-9-]+)/i);
                         if (match && match[1]) {
                             transcriptId = match[1].trim();
                         }
-                        console.log("Transcript ID: " + transcriptId);
+                        //console.log("Transcript ID: " + transcriptId);
                     }
 
                     if (messageText.includes('Your chat is being forwarded for support.')) {
@@ -137,13 +142,13 @@
 
                         if (match && match[1]) {
                             caseNumber = match[1];
-                            console.log("Extracted Case Number:", caseNumber);
+                            //console.log("Extracted Case Number:", caseNumber);
                             startCxoneChat();
                             setTimeout(() => {
                                 document.getElementById("embedded-messaging").style.display = "none";
                             }, 4000);
                         } else {
-                            console.warn("Case number not found in message.");
+                            //console.warn("Case number not found in message.");
                             startCxoneChat();
                         }
                     }
