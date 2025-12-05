@@ -146,8 +146,7 @@
                             startCxoneChat(firstName, transcriptId, caseNumber);
                             // Hide the embedded messaging window after 4 seconds);
                             setTimeout(() => {
-                                //document.getElementById("embedded-messaging").style.display = "none";
-                                embeddedservice_bootstrap.userVerificationAPI.clearSession(true);
+                                document.getElementById("embedded-messaging").style.display = "none";
                             }, 4000);
                         } else {
                             //console.warn("Case number not found in message.");
