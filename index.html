@@ -134,7 +134,7 @@
                         //console.log("Transcript ID: " + transcriptId);
                     }
 
-                    if (messageText.includes('Your chat is being forwarded for support.')) {
+                    if (messageText.includes('Transferring chat to a support executive')) {
 
                         // Regex to capture the case number after the phrase
                         const regex = /Your case number is\s+([A-Za-z0-9]+)/i;
@@ -146,7 +146,8 @@
                             startCxoneChat(firstName, transcriptId, caseNumber);
                             // Hide the embedded messaging window after 4 seconds);
                             setTimeout(() => {
-                                document.getElementById("embedded-messaging").style.display = "none";
+                                //document.getElementById("embedded-messaging").style.display = "none";
+                                embeddedservice_bootstrap.userVerificationAPI.clearSession(true);
                             }, 4000);
                         } else {
                             //console.warn("Case number not found in message.");
@@ -157,23 +158,23 @@
 
                 });
                 embeddedservice_bootstrap.init(
-				'00DS900000DRZFB',
-				'Agentforce_Customer_Support_Dev',
-				'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1764669389369',
-				{
-					scrt2URL: 'https://nuffieldhealth-crm--mintdev.sandbox.my.salesforce-scrt.com'
-				}
-			);
-
+                    '00DS900000DRZFB',
+                    'Agentforce_Customer_Support_Dev',
+                    'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1764669389369',
+                    {
+                        scrt2URL: 'https://nuffieldhealth-crm--mintdev.sandbox.my.salesforce-scrt.com'
+                    }
+                );
             } catch (err) {
                 console.error('Error loading Embedded Messaging: ', err);
             }
         };
     </script>
-   <script type='text/javascript' src='https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1764669389369/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+    <script type='text/javascript'
+        src='https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1764669389369/assets/js/bootstrap.min.js'
+        onload='initEmbeddedMessaging()'></script>
 
 
 </body>
 
 </html>
-
