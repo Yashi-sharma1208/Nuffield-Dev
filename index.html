@@ -134,17 +134,15 @@
                         //console.log("Transcript ID: " + transcriptId);
                     }
 
-                    if (messageText.includes('Transferring chat to a support executive.')) {
+                    if (messageText.includes('Transferring chat to a support executive')) {
+                            //console.log("Extracted Case Number:", caseNumber);
                             startCxoneChat(firstName, transcriptId);
                             // Hide the embedded messaging window after 4 seconds);
                             setTimeout(() => {
                                 //document.getElementById("embedded-messaging").style.display = "none";
                                 embeddedservice_bootstrap.userVerificationAPI.clearSession(true)
                             }, 4000);
-                        } else {
-                            //console.warn("Case number not found in message.");
-                            //startCxoneChat();
-                        }
+                        
                     }
 
 
