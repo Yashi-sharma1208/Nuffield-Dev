@@ -66,40 +66,30 @@
     <script type='text/javascript'>
         function startCxoneChat(firstName, transcriptId) {
             (function (n, u) {
-                window.CXoneDfo = n;
-                window[n] = window[n] || function () {
-                    (window[n].q = window[n].q || []).push(arguments);
-                };
-                window[n].u = u;
+                window.CXoneDfo = n,
+                    window[n] = window[n] || function () { (window[n].q = window[n].q || []).push(arguments) }, window[n].u = u,
+                    e = document.createElement("script"), e.type = "module", e.src = u + "?" + Math.round(Date.now() / 1e3 / 3600),
+                    document.head.appendChild(e)
+            })('cxone', 'https://web-modules-de-uk1.niceincontact.com/loader/1/loader.js');
 
-                const e = document.createElement("script");
-                e.type = "module";
-                e.src = u + "?" + Math.round(Date.now() / 1e3 / 3600);
-                document.head.appendChild(e);
-            })(
-                "cxone",
-                "https://web-modules-de-uk1.niceincontact.com/loader/1/loader.js"
-            );
-
-            cxone("init", "1152");
-            cxone("chat", "init", 1152, "chat_77cdeb00-0c80-41cb-874b-0e7df1067e0c");
-
-            // Set Customer's Name
-            cxone("chat", "setCustomerName", firstName);
+            cxone('init', '1152');
+            cxone('chat', 'init', 1152, 'chat_77cdeb00-0c80-41cb-874b-0e7df1067e0c'); //CXOne LIVE CHAT Channel ID use CHAT for Digital and GUIDE for GUIDE..
+            // Set Customer's name
+            cxone('chat', 'setCustomerName', 'Vikram Middha');
 
             // Set Custom Fields
-            cxone("chat", "setCustomField", "nuffskill", "General");
-            cxone("chat", "setCustomField", "sfticketid", transcriptId); // Transcript Id
+            cxone('chat', 'setCustomField', 'nuffskill', 'General'); //Can be Offline / General / Cancellations
+            cxone('chat', 'setCustomField', 'sfticketid', '1234-rteqw-1234-789dfty'); //salesforce case ID
+            //cxone('chat', 'setCustomField', 'sftranscriptid', 'transcriptId1345567890'); //NOT USED
+            cxone('chat', 'sendFirstMessageAutomatically', 'Studio actions and bots can seata. The data and gone');
 
-            // Start Chat with Summary
-            //cxone("chat", "sendFirstMessageAutomatically", "Hello");
+            cxone('chat', 'chat', 'hideSystemMessages');
+            cxone('chat', 'hideSendTranscript');
+            cxone('chat', 'enableChatAlwaysOnline');
+            cxone('chat', 'hidePreSurvey');
+            cxone('chat', 'openChatWindow');
 
-            cxone("chat", "hideSystemMessages");
-            cxone("chat", "enableChatAlwaysOnline");
-            cxone("chat", "hidePreSurvey");
-            cxone("chat", "openChatWindow");
-
-            cxone("chat", "autoStartSession");
+            cxone('chat', 'autoStartSession');
 
         }
 
@@ -135,14 +125,14 @@
                     }
 
                     if (messageText.includes('Transferring chat to a support executive')) {
-                            //console.log("Extracted Case Number:", caseNumber);
-                            startCxoneChat(firstName, transcriptId);
-                            // Hide the embedded messaging window after 4 seconds);
-                            setTimeout(() => {
-                                //document.getElementById("embedded-messaging").style.display = "none";
-                                embeddedservice_bootstrap.userVerificationAPI.clearSession(true)
-                            }, 4000);
-                        
+                        //console.log("Extracted Case Number:", caseNumber);
+                        startCxoneChat(firstName, transcriptId);
+                        // Hide the embedded messaging window after 4 seconds);
+                        setTimeout(() => {
+                            //document.getElementById("embedded-messaging").style.display = "none";
+                            embeddedservice_bootstrap.userVerificationAPI.clearSession(true)
+                        }, 4000);
+
                     }
 
 
