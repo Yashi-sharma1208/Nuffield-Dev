@@ -64,7 +64,7 @@
 
     <!-- Embedded Messaging Code -->
     <script type='text/javascript'>
-        function startCxoneChat(firstName, transcriptId) {
+        function startCxoneChat(firstName, transcriptId, skillId) {
             (function (n, u) {
                 window.CXoneDfo = n,
                     window[n] = window[n] || function () { (window[n].q = window[n].q || []).push(arguments) }, window[n].u = u,
@@ -78,7 +78,7 @@
             cxone('chat', 'setCustomerName', firstName);
 
             // Set Custom Fields
-            cxone('chat', 'setCustomField', 'nuffskill', '29204809'); //Can be Offline / General / Cancellations
+            cxone('chat', 'setCustomField', 'nuffskill', skillId); //Can be Offline / General / Cancellations
             cxone('chat', 'setCustomField', 'sfticketid', '1234-rteqw-1234-789dfty'); //salesforce case ID
             cxone('chat', 'setCustomField', 'sftranscriptid', transcriptId); //NOT USED
             cxone('chat', 'sendFirstMessageAutomatically', 'Studio actions and bots can seata. The data and gone');
@@ -93,10 +93,23 @@
 
         }
 
+        function getSkillId(messageText){
+            if(messageText.includes('Transferring the chat to a support executive for appointment cancellation')){
+                return '31531982';
+            }
+            else if(messageText.includes("Transferring the chat to a support executive for appointment booking")){
+                return '29204808';
+            }
+            else{
+                return '29204809';
+            }
+        }
+
         function initEmbeddedMessaging() {
             let firstName = "";
             let transcriptId = "";
             let caseNumber = "";
+            let SkillId = "";
             try {
                 embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
 
@@ -124,9 +137,9 @@
                         //console.log("Transcript ID: " + transcriptId);
                     }
 
-                    if (messageText.includes('Transferring chat')) {
-                        console.log("Extracted Case Number:", firstName);
-                        startCxoneChat(firstName, transcriptId);
+                    if (messageText.includes('Transferring chat to a support executive')) {
+                        skillId = getSkillId(messageText);
+                        startCxoneChat(firstName, transcriptId, skillId);
                         // Hide the embedded messaging window after 4 seconds);
                         setTimeout(() => {
                             //document.getElementById("embedded-messaging").style.display = "none";
