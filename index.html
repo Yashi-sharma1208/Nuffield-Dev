@@ -141,7 +141,7 @@
                         //console.log("Transcript ID: " + transcriptId);
                     }
 
-                    if (messageText.includes('Transferring chat to a support executive')) {
+                    if (messageText.includes('Transferring the chat to a support executive')) {
                         skillId = getSkillId(messageText);
                         console.log("Skill Id :"+skillId);
                         startCxoneChat(firstName, transcriptId, skillId);
