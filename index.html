@@ -115,8 +115,7 @@
             let caseNumber = "";
             let SkillId = "";
             try {
-               bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
- embeddedservice_
+               embeddedservice_bootstrap.settings.language = 'en_US';
                 // This event listner is triggered when the pre-chat form is submitted
                 window.addEventListener("onEmbeddedMessagingPreChatSubmitted", ({ detail }) => {
                     const { _firstName } = detail.prechatSubmitFields;
