@@ -157,6 +157,7 @@
 				window.addEventListener('beforeunload', function (e) {
             		e.preventDefault();
             		e.returnValue = '';
+					embeddedservice_bootstrap.userVerificationAPI.clearSession(true)
        			});
                 embeddedservice_bootstrap.init(
 				'00DS900000DRZFB',
