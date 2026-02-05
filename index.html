@@ -154,7 +154,8 @@
 
 
                 });
-				window.addEventListener('beforeunload', function (e) {
+				window.addEventListener('beforeunload', function (event) {
+					alert('All the changes will be gone');
 					embeddedservice_bootstrap.userVerificationAPI.clearSession(true);
 				});
                 embeddedservice_bootstrap.init(
