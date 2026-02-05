@@ -154,6 +154,9 @@
 
 
                 });
+				window.addEventListener('beforeunload', function (e) {
+					embeddedservice_bootstrap.userVerificationAPI.clearSession(true);
+				});
                 embeddedservice_bootstrap.init(
 				'00DS900000DRZFB',
 				'Agentforce_Customer_Support',
