@@ -167,7 +167,7 @@
                 }
 				if(messageText.includes(‘Confidential advice and support for your mental health is available for free’)){
 			setTimeout(() => {
-                        embedded_svc.liveAgentAPI.endChat();
+                        embeddedservice_bootstrap.userVerificationAPI.clearSession(true)
                     }, 4000);
 				}
 
