@@ -146,8 +146,8 @@
 
                 console.log("Extracted text:", messageText);
                 // Fetching transcript id
-                if (messageText.includes("welcome to Nuffield Customer Support")) {
-                    const match = messageText.match(/Your transcript ID is\s*([A-Za-z0-9-]+)/i);
+               if (messageText && messageText.toLowerCase().includes("chat id")) {
+    				const match = messageText.match(/Your chat ID is\s*([A-Za-z0-9-]+)/i);
                     if (match && match[1]) {
                         transcriptId = match[1].trim();
                         console.log('Transcript Id - ' + transcriptId);
