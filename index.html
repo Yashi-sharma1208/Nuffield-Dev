@@ -47,6 +47,69 @@
             background-color: rgba(128, 128, 128, 0.5) !important;
         }
 
+        /* ── Hide the native embedded chat button ── */
+        #embeddedMessagingConversationButton {
+            display: none !important;
+        }
+
+        /* ── Custom Chat Button ── */
+        #customChatBtn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 99999;
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            background: #2a6f55;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 22px 14px 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 18px rgba(42, 111, 85, 0.45);
+
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+
+            transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+        }
+
+        #customChatBtn:hover {
+            background: #1f5440;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(42, 111, 85, 0.55);
+        }
+
+        #customChatBtn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 12px rgba(42, 111, 85, 0.4);
+        }
+
+        #customChatBtn svg {
+            flex-shrink: 0;
+        }
+
+        /* Pulse ring to draw attention */
+        #customChatBtn::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50px;
+            border: 2px solid rgba(42, 111, 85, 0.4);
+            animation: pulseRing 2.2s ease-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulseRing {
+            0%   { transform: scale(1);    opacity: 0.7; }
+            70%  { transform: scale(1.12); opacity: 0;   }
+            100% { transform: scale(1.12); opacity: 0;   }
+        }
     </style>
 </head>
 
@@ -67,7 +130,58 @@
         </div>
     </div>
 
+    <!-- Custom Chat Button -->
+    <button id="customChatBtn" aria-label="Open chat support" onclick="openEmbeddedChat()">
+        <!-- Chat bubble icon -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+             xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
+                  stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Chat with us
+    </button>
+
 <script type='text/javascript'>
+    function openEmbeddedChat() {
+        // Find and click the embedded chat button
+        const embeddedBtn = document.getElementById('embeddedMessagingConversationButton');
+        if (embeddedBtn) {
+            // Temporarily make it clickable, trigger click, then re-hide
+            embeddedBtn.style.setProperty('display', 'block', 'important');
+            embeddedBtn.click();
+            embeddedBtn.style.setProperty('display', 'none', 'important');
+        } else {
+            console.warn('Embedded chat button not found yet. Retrying...');
+            // If the button isn't rendered yet, poll until it is
+            waitForEmbeddedBtn();
+        }
+
+        // Hide the custom button
+        const customBtn = document.getElementById('customChatBtn');
+        if (customBtn) {
+            customBtn.style.display = 'none';
+        }
+    }
+
+    function waitForEmbeddedBtn() {
+        const maxAttempts = 20;
+        let attempts = 0;
+
+        const interval = setInterval(() => {
+            attempts++;
+            const embeddedBtn = document.getElementById('embeddedMessagingConversationButton');
+            if (embeddedBtn) {
+                clearInterval(interval);
+                embeddedBtn.style.setProperty('display', 'block', 'important');
+                embeddedBtn.click();
+                embeddedBtn.style.setProperty('display', 'none', 'important');
+            } else if (attempts >= maxAttempts) {
+                clearInterval(interval);
+                console.error('Embedded chat button not found after polling.');
+            }
+        }, 300);
+    }
+
     function startCxoneChat(firstName, transcriptId, skillId) {
         console.log('Entered into startCxoneChat');
         (function (n, u) {
