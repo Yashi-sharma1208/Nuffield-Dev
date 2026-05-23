@@ -47,34 +47,6 @@
             background-color: rgba(128, 128, 128, 0.5) !important;
         }
 
-        .embeddedMessagingConversationButtonWrapper {
-            height: 56px !important;
-            width: 180px !important;
-        }
-
-        .embeddedMessagingConversationButton {
-            background-color: none !important;
-            height: 56px !important;
-            width: 180px !important;
-            border-radius: 50px !important;
-            padding: 0 !important;
-            overflow: hidden !important;
-        }
-
-        .embeddedMessagingIconContainer {
-            width: 100% !important;
-            height: 100% !important;
-            border-radius: 0 !important;
-            display: block !important;
-        }
-
-        .embeddedMessagingIconChat {
-            width: 100% !important;
-            height: 100% !important;
-            border-radius: 0 !important;
-            object-fit: cover !important;
-            display: block !important;
-        }
     </style>
 </head>
 
@@ -205,43 +177,6 @@
 </script>
 
 <script type='text/javascript' src='https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1769670343106/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
-
-<script>
-    function applyButtonStyles() {
-        const wrapper = document.querySelector('.embeddedMessagingConversationButtonWrapper');
-        const btn = document.querySelector('.embeddedMessagingConversationButton');
-        const container = document.querySelector('.embeddedMessagingIconContainer');
-        const img = document.querySelector('.embeddedMessagingIconChat');
-
-        if (btn && img) {
-            wrapper.style.width = '180px';
-            wrapper.style.height = '56px';
-
-            btn.style.width = '180px';
-            btn.style.height = '56px';
-            btn.style.borderRadius = '50px';
-            btn.style.padding = '0';
-            btn.style.overflow = 'hidden';
-
-            container.style.width = '100%';
-            container.style.height = '100%';
-            container.style.borderRadius = '0';
-            container.style.display = 'block';
-
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.borderRadius = '0';
-            img.style.objectFit = 'fill';
-            img.style.display = 'block';
-
-            console.log('Button styles applied successfully');
-        } else {
-            setTimeout(applyButtonStyles, 300);
-        }
-    }
-
-    setTimeout(applyButtonStyles, 2000);
-</script>
 
 </body>
 </html>
