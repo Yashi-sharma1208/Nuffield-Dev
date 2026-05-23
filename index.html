@@ -132,7 +132,6 @@
 
     <!-- Custom Chat Button -->
     <button id="customChatBtn" aria-label="Open chat support" onclick="openEmbeddedChat()">
-        <!-- Chat bubble icon -->
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
              xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
@@ -142,31 +141,46 @@
     </button>
 
 <script type='text/javascript'>
+
+    // ── Show / Hide helpers ──────────────────────────────────────────
+    function showCustomBtn() {
+        document.getElementById('customChatBtn').style.display = 'flex';
+    }
+
+    function hideCustomBtn() {
+        document.getElementById('customChatBtn').style.display = 'none';
+    }
+
+    // ── Re-show custom button when window is closed or minimized ─────
+    window.addEventListener('onEmbeddedMessagingWindowClosed', () => {
+        showCustomBtn();
+    });
+
+    window.addEventListener('onEmbeddedMessagingWindowMinimized', () => {
+        showCustomBtn();
+    });
+
+    // ── Hide custom button when window is maximized again ────────────
+    window.addEventListener('onEmbeddedMessagingWindowMaximized', () => {
+        hideCustomBtn();
+    });
+
+    // ── Open chat ────────────────────────────────────────────────────
     function openEmbeddedChat() {
-        // Find and click the embedded chat button
         const embeddedBtn = document.getElementById('embeddedMessagingConversationButton');
         if (embeddedBtn) {
-            // Temporarily make it clickable, trigger click, then re-hide
             embeddedBtn.style.setProperty('display', 'block', 'important');
             embeddedBtn.click();
             embeddedBtn.style.setProperty('display', 'none', 'important');
         } else {
-            console.warn('Embedded chat button not found yet. Retrying...');
-            // If the button isn't rendered yet, poll until it is
             waitForEmbeddedBtn();
         }
-
-        // Hide the custom button
-        const customBtn = document.getElementById('customChatBtn');
-        if (customBtn) {
-            customBtn.style.display = 'none';
-        }
+        hideCustomBtn();
     }
 
     function waitForEmbeddedBtn() {
         const maxAttempts = 20;
         let attempts = 0;
-
         const interval = setInterval(() => {
             attempts++;
             const embeddedBtn = document.getElementById('embeddedMessagingConversationButton');
@@ -182,6 +196,7 @@
         }, 300);
     }
 
+    // ── Rest of your existing code ───────────────────────────────────
     function startCxoneChat(firstName, transcriptId, skillId) {
         console.log('Entered into startCxoneChat');
         (function (n, u) {
@@ -194,45 +209,30 @@
         cxone('init', '1152');
         cxone('chat', 'init', 1152, 'chat_77cdeb00-0c80-41cb-874b-0e7df1067e0c');
         cxone('chat', 'setCustomerName', firstName);
-        console.log('startCxoneChat First checkpoint');
         cxone('chat', 'setCustomField', 'nuffskill', skillId);
         cxone('chat', 'setCustomField', 'sfticketid', transcriptId);
         cxone('chat', 'setCustomField', 'sftranscriptid', transcriptId);
         cxone('chat', 'sendFirstMessageAutomatically', 'Welcome to Nuffield Support. How can I help you?');
         cxone('chat', 'setCustomCss', '[data-selector-item="START_NEW_CHAT"] {display: none !important;};');
-
-        console.log('startCxoneChat Second checkpoint');
-
         cxone('chat', 'chat', 'hideSystemMessages');
         cxone('chat', 'hideSendTranscript');
         cxone('chat', 'enableChatAlwaysOnline');
         cxone('chat', 'hidePreSurvey');
         cxone('chat', 'openChatWindow');
-
         cxone('chat', 'autoStartSession');
-        console.log('startCxoneChat Third checkpoint');
     }
 
     function getSkillId(messageText) {
-        console.log('getting the skill id for -' + messageText);
         const text = messageText.toLowerCase();
-
-        if (text.includes('appointment cancellation')) {
-            return '31531982';
-        }
-
-        if (text.includes('appointment booking')) {
-            return '29204808';
-        }
-
+        if (text.includes('appointment cancellation')) return '31531982';
+        if (text.includes('appointment booking')) return '29204808';
         return '29204809';
     }
 
     function initEmbeddedMessaging() {
         let firstName = "";
         let transcriptId = "";
-        let caseNumber = "";
-        let SkillId = "";
+        let skillId = "";
         try {
             embeddedservice_bootstrap.settings.language = 'en_US';
 
@@ -245,9 +245,7 @@
             let idleTimer = null;
 
             window.addEventListener("onEmbeddedMessageSent", (event) => {
-
                 clearTimeout(idleTimer);
-
                 idleTimer = setTimeout(() => {
                     embeddedservice_bootstrap.userVerificationAPI.clearSession(true);
                 }, IDLE_TIME);
@@ -267,11 +265,9 @@
 
                 if (messageText.includes('Transferring the chat to a support executive')) {
                     skillId = getSkillId(messageText);
-                    console.log("Skill Id :" + skillId);
                     startCxoneChat(firstName, transcriptId, skillId);
                     setTimeout(() => {
-                        console.log('Closing the agentforce chat window');
-                        embeddedservice_bootstrap.userVerificationAPI.clearSession(true)
+                        embeddedservice_bootstrap.userVerificationAPI.clearSession(true);
                     }, 4000);
                 }
             });
