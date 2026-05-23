@@ -165,19 +165,28 @@
         hideCustomBtn();
     });
 
-    // ── Open chat ────────────────────────────────────────────────────
+    // ── Open chat using official API with DOM click fallback ─────────
     function openEmbeddedChat() {
-        const embeddedBtn = document.getElementById('embeddedMessagingConversationButton');
-        if (embeddedBtn) {
-            embeddedBtn.style.setProperty('display', 'block', 'important');
-            embeddedBtn.click();
-            embeddedBtn.style.setProperty('display', 'none', 'important');
-        } else {
-            waitForEmbeddedBtn();
+        try {
+            // Official Salesforce API — works regardless of DOM button state
+            embeddedservice_bootstrap.utilAPI.launchChat();
+        } catch (e) {
+            console.warn('utilAPI.launchChat() failed, falling back to DOM click:', e);
+            // Fallback: find and click the embedded button directly
+            const embeddedBtn = document.getElementById('embeddedMessagingConversationButton');
+            if (embeddedBtn) {
+                embeddedBtn.style.setProperty('display', 'block', 'important');
+                embeddedBtn.click();
+                embeddedBtn.style.setProperty('display', 'none', 'important');
+            } else {
+                // Button not in DOM yet — poll until it appears
+                waitForEmbeddedBtn();
+            }
         }
         hideCustomBtn();
     }
 
+    // ── Fallback: poll for embedded button if not yet in DOM ─────────
     function waitForEmbeddedBtn() {
         const maxAttempts = 20;
         let attempts = 0;
@@ -192,11 +201,13 @@
             } else if (attempts >= maxAttempts) {
                 clearInterval(interval);
                 console.error('Embedded chat button not found after polling.');
+                // Re-show custom button so user can try again
+                showCustomBtn();
             }
         }, 300);
     }
 
-    // ── Rest of your existing code ───────────────────────────────────
+    // ── CXone chat initialisation ────────────────────────────────────
     function startCxoneChat(firstName, transcriptId, skillId) {
         console.log('Entered into startCxoneChat');
         (function (n, u) {
@@ -229,6 +240,7 @@
         return '29204809';
     }
 
+    // ── Salesforce Embedded Messaging init ───────────────────────────
     function initEmbeddedMessaging() {
         let firstName = "";
         let transcriptId = "";
