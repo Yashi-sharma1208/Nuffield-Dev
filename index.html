@@ -65,27 +65,45 @@
     <script>
     (function () {
 
-        // ── 1. Hide native Salesforce buttons via CSS ────────────────────
-        // #embeddedMessagingConversationButton — the launch button
-        // #embeddedMessagingFrame.isMinimized   — the minimized bar
-        // Both sit on YOUR page (not inside cross-origin iframe) so CSS works
+        // ── 1. Hide all native Salesforce buttons via CSS ────────────────
         const style = document.createElement('style');
         style.textContent = `
-            #embeddedMessagingConversationButton {
+            #embeddedMessagingConversationButton,
+            .embeddedMessagingConversationButtonWrapper {
                 display: none !important;
+                pointer-events: none !important;
             }
             #embeddedMessagingFrame.isMinimized {
                 display: none !important;
+                pointer-events: none !important;
             }
         `;
         document.head.appendChild(style);
 
-        // ── 2. Create the custom chat button using the image ─────────────
-        const chatBtn = document.createElement('img');
+        // ── 2. Create custom button as a div with background-image ───────
+        // The source image is 1536x1024 with large transparent padding.
+        // The green "Talk to us" button sits roughly in the top-center.
+        // We use background-size + background-position to crop to just
+        // the visible button graphic, so the clickable area matches exactly.
+        const chatBtn = document.createElement('div');
         chatBtn.id = 'customChatBtn';
-        chatBtn.src = 'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/resource/1779448119000/Agentforce_chat_icon';
-        chatBtn.alt = 'Talk to us';
         chatBtn.title = 'Talk to us';
+        chatBtn.setAttribute('role', 'button');
+        chatBtn.setAttribute('aria-label', 'Talk to us');
+        chatBtn.setAttribute('tabindex', '0');
+
+        // Image natural size: 1536 x 1024
+        // Button graphic approx: starts at x=370, y=95, width=800, height=290
+        // We set the div to match the button graphic size at a display scale,
+        // then shift background to show only the button portion.
+        // Display size: 160px wide, height proportional to button crop (160 * 290/800 ≈ 58px)
+        const displayWidth = 160;
+        const displayHeight = 58;
+
+        // Scale factor: displayWidth / cropWidth = 160 / 800 = 0.2
+        // background-size = naturalWidth * scale = 1536 * 0.2 = 307px wide
+        // background-position-x = cropStartX * scale = 370 * 0.2 = 74px (shift left)
+        // background-position-y = cropStartY * scale = 95 * 0.2 = 19px (shift up)
 
         chatBtn.style.cssText = `
             position: fixed;
@@ -93,11 +111,22 @@
             right: 28px;
             z-index: 99999;
             cursor: pointer;
-            width: 160px;
+            width: ${displayWidth}px;
+            height: ${displayHeight}px;
+            background-image: url('https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/resource/1779448119000/Agentforce_chat_icon');
+            background-repeat: no-repeat;
+            background-size: 307px auto;
+            background-position: -74px -19px;
             display: block;
         `;
 
         chatBtn.addEventListener('click', openEmbeddedChat);
+
+        // Also allow keyboard activation (Enter/Space)
+        chatBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') openEmbeddedChat();
+        });
+
         document.body.appendChild(chatBtn);
 
         // ── 3. Show / Hide custom button helpers ─────────────────────────
@@ -112,19 +141,14 @@
         }
 
         // ── 4. Event listeners ───────────────────────────────────────────
-        // Minimized: CSS hides #embeddedMessagingFrame.isMinimized already,
-        // we just need to show the custom button
         window.addEventListener('onEmbeddedMessagingWindowMinimized', () => {
             showCustomBtn();
         });
 
-        // Closed: show custom button
         window.addEventListener('onEmbeddedMessagingWindowClosed', () => {
             showCustomBtn();
         });
 
-        // Maximized: hide custom button
-        // CSS automatically shows the iframe again (isMinimized class removed)
         window.addEventListener('onEmbeddedMessagingWindowMaximized', () => {
             hideCustomBtn();
         });
