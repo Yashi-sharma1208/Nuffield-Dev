@@ -84,33 +84,36 @@
             document.head.appendChild(style);
 
             // ── 2. Reliable width check using matchMedia ──────────────────────────
-            // matchMedia respects the viewport meta tag on real devices,
-            // making it the most reliable method across DevTools and real phones
+            // Works correctly on real devices AND in DevTools emulation.
+            // Requires the viewport meta tag (added in <head>) to report true
+            // physical screen width on mobile devices.
             const mqlWide = window.matchMedia('(min-width: 701px)');
 
             function isWideScreen() {
                 return mqlWide.matches;
             }
 
-            // ── 3. Create custom button ───────────────────────────────────────────
+            // ── 3. Create custom button with unread badge ─────────────────────────
             const chatBtn = document.createElement('div');
             chatBtn.id = 'customChatBtn';
             chatBtn.title = 'Talk to us';
             chatBtn.style.cssText = `
-    position: fixed;
-    bottom: clamp(16px, 2vw, 28px);
-    right: clamp(16px, 2vw, 28px);
-    width: 10vw;
-    height: 5vh;
-    overflow: hidden;
-    z-index: 99999;
-    cursor: pointer;
-    display: ${isWideScreen() ? 'flex' : 'none'};
-    align-items: center;
-    justify-content: center;
-`;
+                position: fixed;
+                bottom: clamp(16px, 2vw, 28px);
+                right: clamp(16px, 2vw, 28px);
+                width: 10vw;
+                height: 5vh;
+                overflow: visible;
+                z-index: 99999;
+                cursor: pointer;
+                display: ${isWideScreen() ? 'flex' : 'none'};
+                align-items: center;
+                justify-content: center;
+            `;
+
             const img = document.createElement('img');
             img.src = 'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/resource/1779698354000/Agentforce_chat_icon';
+            img.alt = 'Chat with us';
             img.style.cssText = `
                 width: 100%;
                 height: 100%;
@@ -118,7 +121,34 @@
                 display: block;
             `;
 
+            // ── Badge element ─────────────────────────────────────────────────────
+            const badge = document.createElement('div');
+            badge.id = 'customChatBadge';
+            badge.style.cssText = `
+                position: absolute;
+                top: -7px;
+                right: -7px;
+                background: #e24b4a;
+                color: white;
+                font-family: Arial, sans-serif;
+                font-size: 11px;
+                font-weight: bold;
+                min-width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 0 3px;
+                box-sizing: border-box;
+                border: 2px solid white;
+                pointer-events: none;
+                z-index: 100000;
+            `;
+
             chatBtn.appendChild(img);
+            chatBtn.appendChild(badge);
+
             chatBtn.addEventListener('click', openEmbeddedChat);
             chatBtn.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -142,14 +172,64 @@
                 if (btn) btn.style.display = 'none';
             }
 
-            // ── 5. matchMedia change listener ─────────────────────────────────────
+            // ── 5. Badge helpers ──────────────────────────────────────────────────
+            function showBadge(count) {
+                const b = document.getElementById('customChatBadge');
+                if (!b) return;
+                b.textContent = count > 99 ? '99+' : count;
+                b.style.display = 'flex';
+            }
+
+            function hideBadge() {
+                const b = document.getElementById('customChatBadge');
+                if (!b) return;
+                b.style.display = 'none';
+            }
+
+            // ── 6. MutationObserver — mirror SF's native unseen count ─────────────
+            // Reads directly from SF's own span.unseenMessageCountText so the badge
+            // count is always exactly in sync with what the native button shows.
+            function observeUnseenCount() {
+                // SF creates the count span dynamically — watch body until it appears
+                const bodyObserver = new MutationObserver(() => {
+                    const countSpan = document.querySelector('span.unseenMessageCountText');
+                    if (countSpan) {
+                        bodyObserver.disconnect(); // found it, stop watching body
+
+                        // Now watch the span itself for any text/child changes
+                        const spanObserver = new MutationObserver(() => {
+                            const text = countSpan.textContent.trim();
+                            const count = parseInt(text, 10);
+                            const btn = document.getElementById('customChatBtn');
+
+                            if (!isNaN(count) && count > 0 && btn && btn.style.display !== 'none') {
+                                showBadge(count);
+                            } else {
+                                hideBadge();
+                            }
+                        });
+
+                        spanObserver.observe(countSpan, {
+                            childList: true,
+                            subtree: true,
+                            characterData: true
+                        });
+                    }
+                });
+
+                bodyObserver.observe(document.body, { childList: true, subtree: true });
+            }
+
+            // ── 7. matchMedia change listener ─────────────────────────────────────
+            // Handles viewport resize including DevTools emulation breakpoint changes
             mqlWide.addEventListener('change', (e) => {
                 const btn = document.getElementById('customChatBtn');
                 if (!btn) return;
 
                 if (!e.matches) {
-                    // ≤700px — hide custom button, native SF button takes over
+                    // ≤700px — native SF button takes over, hide custom button + badge
                     btn.style.display = 'none';
+                    hideBadge();
                 } else {
                     // >700px — show custom button if chat is not currently open
                     const frame = document.getElementById('embeddedMessagingFrame');
@@ -160,21 +240,24 @@
                 }
             });
 
-            // ── 6. Embedded Messaging window event listeners ──────────────────────
+            // ── 8. Embedded Messaging window event listeners ──────────────────────
             window.addEventListener('onEmbeddedMessagingWindowMinimized', () => {
                 showCustomBtn();
             });
 
             window.addEventListener('onEmbeddedMessagingWindowClosed', () => {
                 showCustomBtn();
+                hideBadge();
             });
 
             window.addEventListener('onEmbeddedMessagingWindowMaximized', () => {
+                hideBadge();
                 hideCustomBtn();
             });
 
-            // ── 7. Open chat — official API with DOM click fallback ───────────────
+            // ── 9. Open chat — official API with DOM click fallback ───────────────
             function openEmbeddedChat() {
+                hideBadge(); // clear unread count when user opens chat
                 try {
                     embeddedservice_bootstrap.utilAPI.launchChat();
                 } catch (e) {
@@ -191,7 +274,7 @@
                 hideCustomBtn();
             }
 
-            // ── 8. Fallback: poll for embedded button if not in DOM yet ───────────
+            // ── 10. Fallback: poll for embedded button if not in DOM yet ──────────
             function waitForEmbeddedBtn() {
                 const maxAttempts = 20;
                 let attempts = 0;
@@ -211,7 +294,7 @@
                 }, 300);
             }
 
-            // ── 9. CXone chat initialisation ──────────────────────────────────────
+            // ── 11. CXone chat initialisation ─────────────────────────────────────
             function startCxoneChat(firstName, transcriptId, skillId) {
                 console.log('Entered into startCxoneChat');
                 (function (n, u) {
@@ -239,7 +322,7 @@
                 cxone('chat', 'autoStartSession');
             }
 
-            // ── 10. Get skill ID based on message content ──────────────────────────
+            // ── 12. Get skill ID based on message content ──────────────────────────
             function getSkillId(messageText) {
                 const text = messageText.toLowerCase();
                 if (text.includes('appointment cancellation')) return '31531982';
@@ -247,7 +330,7 @@
                 return '29204809';
             }
 
-            // ── 11. Salesforce Embedded Messaging init ─────────────────────────────
+            // ── 13. Salesforce Embedded Messaging init ─────────────────────────────
             function initEmbeddedMessaging() {
                 let firstName = "";
                 let transcriptId = "";
@@ -299,12 +382,16 @@
                             scrt2URL: 'https://nuffieldhealth-crm--mintdev.sandbox.my.salesforce-scrt.com'
                         }
                     );
+
+                    // Start observing SF's unseen count span after SF is initialised
+                    observeUnseenCount();
+
                 } catch (err) {
                     console.error('Error loading Embedded Messaging: ', err);
                 }
             }
 
-            // ── 12. Load Salesforce bootstrap script & kick off init ───────────────
+            // ── 14. Load Salesforce bootstrap script & kick off init ───────────────
             const sfScript = document.createElement('script');
             sfScript.type = 'text/javascript';
             sfScript.src = 'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1769670343106/assets/js/bootstrap.min.js';
