@@ -81,55 +81,51 @@
         document.head.appendChild(style);
 
  // ── 2. Create custom button as a div with background-image ───────
+// Custom Chat Button
 const chatBtn = document.createElement('div');
 
 chatBtn.id = 'customChatBtn';
 chatBtn.title = 'Talk to us';
-chatBtn.setAttribute('role', 'button');
-chatBtn.setAttribute('aria-label', 'Talk to us');
-chatBtn.setAttribute('tabindex', '0');
-
-// Fixed size
-const displayWidth = 200;
-const displayHeight = 150;
 
 chatBtn.style.cssText = `
     position: fixed;
     bottom: 28px;
     right: 28px;
+
     z-index: 99999;
     cursor: pointer;
 
-    width: ${displayWidth}px;
-    height: ${displayHeight}px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+`;
 
-    background-image: url('https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/resource/1779448119000/Agentforce_chat_icon');
+const img = document.createElement('img');
 
-    background-repeat: no-repeat;
+img.src =
+'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/resource/1779448119000/Agentforce_chat_icon';
 
-    /* Fit image completely inside container */
-    background-size: contain;
+img.style.cssText = `
+    width: 200px;
+    height: 150px;
 
-    /* Keep image centered */
-    background-position: center;
-
-    /* Optional */
-    background-color: transparent;
+    object-fit: contain;
 
     display: block;
 `;
 
+chatBtn.appendChild(img);
+
 chatBtn.addEventListener('click', openEmbeddedChat);
 
-// Keyboard support
 chatBtn.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
         openEmbeddedChat();
     }
 });
 
 document.body.appendChild(chatBtn);
-
         // ── 3. Show / Hide custom button helpers ─────────────────────────
         function showCustomBtn() {
             const btn = document.getElementById('customChatBtn');
