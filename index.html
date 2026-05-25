@@ -65,10 +65,16 @@
     <script>
     (function () {
 
-        // ── 1. Hide the native Salesforce button and minimized container ─
+        // ── 1. Hide native Salesforce buttons via CSS ────────────────────
+        // #embeddedMessagingConversationButton — the launch button
+        // #embeddedMessagingFrame.isMinimized   — the minimized bar
+        // Both sit on YOUR page (not inside cross-origin iframe) so CSS works
         const style = document.createElement('style');
         style.textContent = `
             #embeddedMessagingConversationButton {
+                display: none !important;
+            }
+            #embeddedMessagingFrame.isMinimized {
                 display: none !important;
             }
         `;
@@ -94,7 +100,7 @@
         chatBtn.addEventListener('click', openEmbeddedChat);
         document.body.appendChild(chatBtn);
 
-        // ── 3. Show / Hide helpers ───────────────────────────────────────
+        // ── 3. Show / Hide custom button helpers ─────────────────────────
         function showCustomBtn() {
             const btn = document.getElementById('customChatBtn');
             if (btn) btn.style.display = 'block';
@@ -105,18 +111,20 @@
             if (btn) btn.style.display = 'none';
         }
 
-        // ── 4. Event listeners — show button on close/minimize ──────────
+        // ── 4. Event listeners ───────────────────────────────────────────
+        // Minimized: CSS hides #embeddedMessagingFrame.isMinimized already,
+        // we just need to show the custom button
+        window.addEventListener('onEmbeddedMessagingWindowMinimized', () => {
+            showCustomBtn();
+        });
+
+        // Closed: show custom button
         window.addEventListener('onEmbeddedMessagingWindowClosed', () => {
             showCustomBtn();
         });
 
-        window.addEventListener('onEmbeddedMessagingWindowMinimized', () => {
-            console.log('Window minimized');
-            const element = document.querySelector('embeddedmessaging-container');
-            console.log('Element = '+ element);
-            showCustomBtn();
-        });
-
+        // Maximized: hide custom button
+        // CSS automatically shows the iframe again (isMinimized class removed)
         window.addEventListener('onEmbeddedMessagingWindowMaximized', () => {
             hideCustomBtn();
         });
