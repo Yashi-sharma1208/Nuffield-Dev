@@ -111,6 +111,7 @@
         });
 
         window.addEventListener('onEmbeddedMessagingWindowMinimized', () => {
+            console.log('Window minimized');
             const element = document.querySelector('embeddedmessaging-container');
             console.log('Element = '+ element);
             showCustomBtn();
