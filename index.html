@@ -124,7 +124,9 @@ chatBtn.addEventListener('click', openEmbeddedChat);
 
 chatBtn.addEventListener('keydown', (e) => {if (e.key === 'Enter' || e.key === ' ') {e.preventDefault();openEmbeddedChat();}});
 
-document.body.appendChild(chatBtn);// ── 3. Show / Hide custom button helpers ─────────────────────────function showCustomBtn() {const btn = document.getElementById('customChatBtn');if (btn) btn.style.display = 'block';}
+document.body.appendChild(chatBtn);
+    // ── 3. Show / Hide custom button helpers ─────────────────────────
+    function showCustomBtn() {const btn = document.getElementById('customChatBtn');if (btn) btn.style.display = 'block';}
 
     function hideCustomBtn() {
         const btn = document.getElementById('customChatBtn');
