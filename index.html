@@ -65,10 +65,13 @@
     <script>
     (function () {
 
-        // ── 1. Hide the native Salesforce button via injected CSS ────────
+        // ── 1. Hide the native Salesforce button and minimized container ─
         const style = document.createElement('style');
         style.textContent = `
             #embeddedMessagingConversationButton {
+                display: none !important;
+            }
+            embeddedmessaging-container.minimized {
                 display: none !important;
             }
         `;
