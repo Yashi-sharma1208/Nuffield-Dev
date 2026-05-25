@@ -89,16 +89,22 @@ chatBtn.title = 'Talk to us';
 
 chatBtn.style.cssText = `
     position: fixed;
-    bottom: 28px;
-    right: 28px;
 
-    width: 10%;
-    height: 5%;
+    bottom: clamp(16px, 2vw, 28px);
+    right: clamp(16px, 2vw, 28px);
+
+    width: clamp(140px, 14vw, 220px);
+    aspect-ratio: 4 / 3;
 
     overflow: hidden;
 
     z-index: 99999;
+
     cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `;
 
 const img = document.createElement('img');
@@ -110,7 +116,7 @@ img.style.cssText = `
     width: 100%;
     height: 100%;
 
-    object-fit: cover;
+    object-fit: contain;
 
     display: block;
 `;
