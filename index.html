@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nuffield Health Support</title>
     <style>
         body {
@@ -82,7 +83,16 @@
             `;
             document.head.appendChild(style);
 
-            // ── 2. Create custom button — visible only on screens wider than 700px ─
+            // ── 2. Reliable width check using matchMedia ──────────────────────────
+            // matchMedia respects the viewport meta tag on real devices,
+            // making it the most reliable method across DevTools and real phones
+            const mqlWide = window.matchMedia('(min-width: 701px)');
+
+            function isWideScreen() {
+                return mqlWide.matches;
+            }
+
+            // ── 3. Create custom button ───────────────────────────────────────────
             const chatBtn = document.createElement('div');
             chatBtn.id = 'customChatBtn';
             chatBtn.title = 'Talk to us';
@@ -95,7 +105,7 @@
                 overflow: hidden;
                 z-index: 99999;
                 cursor: pointer;
-                display: ${window.innerWidth > 700 ? 'flex' : 'none'};
+                display: ${isWideScreen() ? 'flex' : 'none'};
                 align-items: center;
                 justify-content: center;
             `;
@@ -120,9 +130,9 @@
 
             document.body.appendChild(chatBtn);
 
-            // ── 3. Show / Hide custom button helpers ─────────────────────────────
+            // ── 4. Show / Hide custom button helpers ──────────────────────────────
             function showCustomBtn() {
-                if (window.innerWidth > 700) {
+                if (isWideScreen()) {
                     const btn = document.getElementById('customChatBtn');
                     if (btn) btn.style.display = 'flex';
                 }
@@ -133,7 +143,25 @@
                 if (btn) btn.style.display = 'none';
             }
 
-            // ── 4. Embedded Messaging window event listeners ──────────────────────
+            // ── 5. matchMedia change listener ─────────────────────────────────────
+            mqlWide.addEventListener('change', (e) => {
+                const btn = document.getElementById('customChatBtn');
+                if (!btn) return;
+
+                if (!e.matches) {
+                    // ≤700px — hide custom button, native SF button takes over
+                    btn.style.display = 'none';
+                } else {
+                    // >700px — show custom button if chat is not currently open
+                    const frame = document.getElementById('embeddedMessagingFrame');
+                    const isOpen = frame &&
+                        !frame.classList.contains('isMinimized') &&
+                        frame.style.display !== 'none';
+                    if (!isOpen) btn.style.display = 'flex';
+                }
+            });
+
+            // ── 6. Embedded Messaging window event listeners ──────────────────────
             window.addEventListener('onEmbeddedMessagingWindowMinimized', () => {
                 showCustomBtn();
             });
@@ -146,23 +174,7 @@
                 hideCustomBtn();
             });
 
-            // ── 5. Resize listener — switch between custom and native button ──────
-            window.addEventListener('resize', () => {
-                const btn = document.getElementById('customChatBtn');
-                if (!btn) return;
-
-                if (window.innerWidth <= 700) {
-                    btn.style.display = 'none';
-                } else {
-                    const frame = document.getElementById('embeddedMessagingFrame');
-                    const isOpen = frame &&
-                        !frame.classList.contains('isMinimized') &&
-                        frame.style.display !== 'none';
-                    if (!isOpen) btn.style.display = 'flex';
-                }
-            });
-
-            // ── 6. Open chat — official API with DOM click fallback ───────────────
+            // ── 7. Open chat — official API with DOM click fallback ───────────────
             function openEmbeddedChat() {
                 try {
                     embeddedservice_bootstrap.utilAPI.launchChat();
@@ -180,7 +192,7 @@
                 hideCustomBtn();
             }
 
-            // ── 7. Fallback: poll for embedded button if not in DOM yet ───────────
+            // ── 8. Fallback: poll for embedded button if not in DOM yet ───────────
             function waitForEmbeddedBtn() {
                 const maxAttempts = 20;
                 let attempts = 0;
@@ -200,7 +212,7 @@
                 }, 300);
             }
 
-            // ── 8. CXone chat initialisation ──────────────────────────────────────
+            // ── 9. CXone chat initialisation ──────────────────────────────────────
             function startCxoneChat(firstName, transcriptId, skillId) {
                 console.log('Entered into startCxoneChat');
                 (function (n, u) {
@@ -228,7 +240,7 @@
                 cxone('chat', 'autoStartSession');
             }
 
-            // ── 9. Get skill ID based on message content ───────────────────────────
+            // ── 10. Get skill ID based on message content ──────────────────────────
             function getSkillId(messageText) {
                 const text = messageText.toLowerCase();
                 if (text.includes('appointment cancellation')) return '31531982';
@@ -236,7 +248,7 @@
                 return '29204809';
             }
 
-            // ── 10. Salesforce Embedded Messaging init ─────────────────────────────
+            // ── 11. Salesforce Embedded Messaging init ─────────────────────────────
             function initEmbeddedMessaging() {
                 let firstName = "";
                 let transcriptId = "";
@@ -293,7 +305,7 @@
                 }
             }
 
-            // ── 11. Load Salesforce bootstrap script & kick off init ───────────────
+            // ── 12. Load Salesforce bootstrap script & kick off init ───────────────
             const sfScript = document.createElement('script');
             sfScript.type = 'text/javascript';
             sfScript.src = 'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1769670343106/assets/js/bootstrap.min.js';
