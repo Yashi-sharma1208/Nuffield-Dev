@@ -56,12 +56,8 @@
         <img src="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" alt="Hospital Icon">
         <div class="info-box">
             Welcome to Nuffield Health Support.
-            
-
 
             You can use the chat button (bottom-right) to ask questions or book an appointment.
-            
-
 
             Our support bot will assist you shortly.
         </div>
@@ -88,8 +84,6 @@
             document.head.appendChild(style);
 
             // ── 2. Reliable width check using matchMedia ──────────────────────────
-            // matchMedia respects the viewport meta tag on real devices,
-            // making it the most reliable method across DevTools and real phones
             const mqlWide = window.matchMedia('(min-width: 701px)');
 
             function isWideScreen() {
@@ -101,19 +95,22 @@
             chatBtn.id = 'customChatBtn';
             chatBtn.title = 'Talk to us';
             chatBtn.style.cssText = `
-    position: fixed;
-    bottom: clamp(16px, 2vw, 28px);
-    right: clamp(16px, 2vw, 28px);
-    width: 10vw;
-    height: 5vh;
-    overflow: hidden;
-    z-index: 99999;
-    cursor: pointer;
-    display: ${isWideScreen() ? 'flex' : 'none'};
-    align-items: center;
-    justify-content: center;
-`;
+                position: fixed;
+                bottom: clamp(16px, 2vw, 28px);
+                right: clamp(16px, 2vw, 28px);
+                width: 10vw;
+                height: 5vh;
+                overflow: visible;
+                z-index: 99999;
+                cursor: pointer;
+                display: ${isWideScreen() ? 'flex' : 'none'};
+                align-items: center;
+                justify-content: center;
+            `;
+
+            // Chat icon image
             const img = document.createElement('img');
+            img.id = 'customChatBtnImg';
             img.src = 'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/resource/1779698354000/Agentforce_chat_icon';
             img.style.cssText = `
                 width: 100%;
@@ -122,7 +119,34 @@
                 display: block;
             `;
 
+            // Badge to show unseen message count
+            const badge = document.createElement('div');
+            badge.id = 'customChatBtnBadge';
+            badge.style.cssText = `
+                display: none;
+                position: absolute;
+                top: -10px;
+                right: -10px;
+                background: #e74c3c;
+                color: white;
+                border-radius: 50%;
+                min-width: 22px;
+                height: 22px;
+                font-size: 13px;
+                font-weight: bold;
+                font-family: Arial, sans-serif;
+                align-items: center;
+                justify-content: center;
+                pointer-events: none;
+                z-index: 100000;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+                padding: 0 3px;
+                box-sizing: border-box;
+            `;
+
             chatBtn.appendChild(img);
+            chatBtn.appendChild(badge);
+
             chatBtn.addEventListener('click', openEmbeddedChat);
             chatBtn.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -152,10 +176,8 @@
                 if (!btn) return;
 
                 if (!e.matches) {
-                    // ≤700px — hide custom button, native SF button takes over
                     btn.style.display = 'none';
                 } else {
-                    // >700px — show custom button if chat is not currently open
                     const frame = document.getElementById('embeddedMessagingFrame');
                     const isOpen = frame &&
                         !frame.classList.contains('isMinimized') &&
@@ -171,11 +193,59 @@
 
             window.addEventListener('onEmbeddedMessagingWindowClosed', () => {
                 showCustomBtn();
+                updateCustomBadge(0);
             });
 
             window.addEventListener('onEmbeddedMessagingWindowMaximized', () => {
+                updateCustomBadge(0);
                 hideCustomBtn();
             });
+
+            // ── 6b. Update badge UI ───────────────────────────────────────────────
+            function updateCustomBadge(count) {
+                const badge = document.getElementById('customChatBtnBadge');
+                if (!badge) return;
+
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : String(count);
+                    badge.style.display = 'flex';
+                } else {
+                    badge.textContent = '';
+                    badge.style.display = 'none';
+                }
+            }
+
+            // ── 6c. MutationObserver on document.body ────────────────────────────
+            // Observing body with subtree:true means we catch SF re-rendering the
+            // minimized state component entirely when a new message arrives.
+            // We never cache the span node — re-query fresh on every mutation.
+            (function attachUnseenCountObserver() {
+                let lastCount = 0;
+
+                const observer = new MutationObserver(() => {
+                    const countSpan = document.querySelector('span.unseenMessageCountText');
+                    if (!countSpan) return;
+
+                    const visibleSpan = countSpan.querySelector('span:not(.slds-assistive-text)');
+                    const raw = visibleSpan
+                        ? visibleSpan.textContent.trim()
+                        : (countSpan.childNodes[0]?.textContent?.trim() || '0');
+
+                    const count = parseInt(raw, 10) || 0;
+
+                    if (count !== lastCount) {
+                        lastCount = count;
+                        updateCustomBadge(count);
+                    }
+                });
+
+                // document.body always exists — no polling needed
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                    characterData: true
+                });
+            })();
 
             // ── 7. Open chat — official API with DOM click fallback ───────────────
             function openEmbeddedChat() {
@@ -243,7 +313,7 @@
                 cxone('chat', 'autoStartSession');
             }
 
-            // ── 10. Get skill ID based on message content ──────────────────────────
+            // ── 10. Get skill ID based on message content ─────────────────────────
             function getSkillId(messageText) {
                 const text = messageText.toLowerCase();
                 if (text.includes('appointment cancellation')) return '31531982';
@@ -251,7 +321,7 @@
                 return '29204809';
             }
 
-            // ── 11. Salesforce Embedded Messaging init ─────────────────────────────
+            // ── 11. Salesforce Embedded Messaging init ────────────────────────────
             function initEmbeddedMessaging() {
                 let firstName = "";
                 let transcriptId = "";
@@ -308,7 +378,7 @@
                 }
             }
 
-            // ── 12. Load Salesforce bootstrap script & kick off init ───────────────
+            // ── 12. Load Salesforce bootstrap script & kick off init ──────────────
             const sfScript = document.createElement('script');
             sfScript.type = 'text/javascript';
             sfScript.src = 'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1769670343106/assets/js/bootstrap.min.js';
