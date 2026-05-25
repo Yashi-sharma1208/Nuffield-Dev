@@ -97,19 +97,18 @@
             chatBtn.id = 'customChatBtn';
             chatBtn.title = 'Talk to us';
             chatBtn.style.cssText = `
-                position: fixed;
-                bottom: clamp(16px, 2vw, 28px);
-                right: clamp(16px, 2vw, 28px);
-                width: clamp(140px, 14vw, 220px);
-                aspect-ratio: 4 / 3;
-                overflow: hidden;
-                z-index: 99999;
-                cursor: pointer;
-                display: ${isWideScreen() ? 'flex' : 'none'};
-                align-items: center;
-                justify-content: center;
-            `;
-
+    position: fixed;
+    bottom: clamp(16px, 2vw, 28px);
+    right: clamp(16px, 2vw, 28px);
+    width: 10vw;
+    height: 5vh;
+    overflow: hidden;
+    z-index: 99999;
+    cursor: pointer;
+    display: ${isWideScreen() ? 'flex' : 'none'};
+    align-items: center;
+    justify-content: center;
+`;
             const img = document.createElement('img');
             img.src = 'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/resource/1779698354000/Agentforce_chat_icon';
             img.style.cssText = `
