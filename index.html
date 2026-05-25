@@ -65,20 +65,14 @@
     <script>
     (function () {
 
-        // ── 1. Hide the native Salesforce button and minimized container ─
+        // ── 1. Hide the native Salesforce launch button via CSS ──────────
         const style = document.createElement('style');
         style.textContent = `
             #embeddedMessagingConversationButton {
                 display: none !important;
             }
-            embeddedmessaging-container.minimized {
-                display: none !important;
-            }
         `;
         document.head.appendChild(style);
-
-        const element = document.querySelector('embeddedmessaging-container');
-        console.log('Element = '+element);
 
         // ── 2. Create the custom chat button using the image ─────────────
         const chatBtn = document.createElement('img');
@@ -100,7 +94,7 @@
         chatBtn.addEventListener('click', openEmbeddedChat);
         document.body.appendChild(chatBtn);
 
-        // ── 3. Show / Hide helpers ───────────────────────────────────────
+        // ── 3. Show / Hide custom button helpers ─────────────────────────
         function showCustomBtn() {
             const btn = document.getElementById('customChatBtn');
             if (btn) btn.style.display = 'block';
@@ -111,21 +105,46 @@
             if (btn) btn.style.display = 'none';
         }
 
-        // ── 4. Event listeners — show button on close/minimize ──────────
+        // ── 4. Show / Hide Salesforce iframe wrapper helpers ─────────────
+        // The minimized button lives inside the iframe wrapper.
+        // Since we cannot pierce Shadow DOM/cross-origin iframe with CSS,
+        // we hide/show the entire wrapper instead.
+        function getIframeWrapper() {
+            return document.querySelector('embedded_service_iframe-iframe-wrapper');
+        }
+
+        function hideEmbeddedIframe() {
+            const wrapper = getIframeWrapper();
+            if (wrapper) wrapper.style.setProperty('display', 'none', 'important');
+        }
+
+        function showEmbeddedIframe() {
+            const wrapper = getIframeWrapper();
+            if (wrapper) wrapper.style.setProperty('display', 'block', 'important');
+        }
+
+        // ── 5. Event listeners ───────────────────────────────────────────
+        // Minimized: hide the iframe wrapper (hides minimized bar) + show custom button
+        window.addEventListener('onEmbeddedMessagingWindowMinimized', () => {
+            hideEmbeddedIframe();
+            showCustomBtn();
+        });
+
+        // Closed: show custom button (iframe wrapper already gone)
         window.addEventListener('onEmbeddedMessagingWindowClosed', () => {
             showCustomBtn();
         });
 
-        window.addEventListener('onEmbeddedMessagingWindowMinimized', () => {
-            showCustomBtn();
-        });
-
+        // Maximized: show the iframe wrapper again + hide custom button
         window.addEventListener('onEmbeddedMessagingWindowMaximized', () => {
+            showEmbeddedIframe();
             hideCustomBtn();
         });
 
-        // ── 5. Open chat — official API with DOM click fallback ──────────
+        // ── 6. Open chat — official API with DOM click fallback ──────────
         function openEmbeddedChat() {
+            // Make sure iframe wrapper is visible before opening
+            showEmbeddedIframe();
             try {
                 embeddedservice_bootstrap.utilAPI.launchChat();
             } catch (e) {
@@ -142,7 +161,7 @@
             hideCustomBtn();
         }
 
-        // ── 6. Fallback: poll for embedded button if not in DOM yet ──────
+        // ── 7. Fallback: poll for embedded button if not in DOM yet ──────
         function waitForEmbeddedBtn() {
             const maxAttempts = 20;
             let attempts = 0;
@@ -162,7 +181,7 @@
             }, 300);
         }
 
-        // ── 7. CXone chat initialisation ─────────────────────────────────
+        // ── 8. CXone chat initialisation ─────────────────────────────────
         function startCxoneChat(firstName, transcriptId, skillId) {
             console.log('Entered into startCxoneChat');
             (function (n, u) {
@@ -190,7 +209,7 @@
             cxone('chat', 'autoStartSession');
         }
 
-        // ── 8. Get skill ID based on message content ─────────────────────
+        // ── 9. Get skill ID based on message content ─────────────────────
         function getSkillId(messageText) {
             const text = messageText.toLowerCase();
             if (text.includes('appointment cancellation')) return '31531982';
@@ -198,7 +217,7 @@
             return '29204809';
         }
 
-        // ── 9. Salesforce Embedded Messaging init ────────────────────────
+        // ── 10. Salesforce Embedded Messaging init ───────────────────────
         function initEmbeddedMessaging() {
             let firstName = "";
             let transcriptId = "";
@@ -255,7 +274,7 @@
             }
         }
 
-        // ── 10. Load Salesforce bootstrap script & kick off init ─────────
+        // ── 11. Load Salesforce bootstrap script & kick off init ─────────
         const sfScript = document.createElement('script');
         sfScript.type = 'text/javascript';
         sfScript.src = 'https://nuffieldhealth-crm--mintdev.sandbox.my.site.com/ESWAgentforceCustomerSu1769670343106/assets/js/bootstrap.min.js';
