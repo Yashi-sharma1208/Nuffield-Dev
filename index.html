@@ -109,6 +109,21 @@
                     transform: scale(1.06);
                 }
 
+                /* ── Image visibility defaults (large screens) ── */
+                #customChatBtn img.img-default {
+                    display: block !important;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                }
+
+                #customChatBtn img.img-small {
+                    display: none !important;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
                 /* ── Small screen overrides (width < 700px) ── */
                 @media (max-width: 699px) {
                     #customChatBtn {
@@ -128,22 +143,8 @@
                         box-shadow: 0 6px 22px rgba(0, 0, 0, 0.3);
                     }
 
-                    /* On small screens use the agent avatar */
-                    #customChatBtn .img-default { display: none !important; }
-                    #customChatBtn .img-small   { display: block !important; }
-                }
-
-                /* On large screens use the original icon */
-                #customChatBtn .img-small {
-                    display: none;
-                }
-
-                #customChatBtn .img-default,
-                #customChatBtn .img-small {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    display: block;
+                    #customChatBtn img.img-default { display: none !important; }
+                    #customChatBtn img.img-small   { display: block !important; }
                 }
             `;
             document.head.appendChild(style);
