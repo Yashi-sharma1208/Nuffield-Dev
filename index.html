@@ -71,9 +71,6 @@
             #embeddedMessagingConversationButton {
                 display: none !important;
             }
-            embeddedmessaging-container.minimized {
-                display: none !important;
-            }
         `;
         document.head.appendChild(style);
 
@@ -114,6 +111,8 @@
         });
 
         window.addEventListener('onEmbeddedMessagingWindowMinimized', () => {
+            const element = document.querySelector('embeddedmessaging-container');
+            console.log('Element = '+ element);
             showCustomBtn();
         });
 
